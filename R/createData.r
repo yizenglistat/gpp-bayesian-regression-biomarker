@@ -1,7 +1,15 @@
-createData <- function(npools=1000, size=5, weighted=TRUE, model=2, copula_rho=0.2,
+createData <- function(npools=300, size=2, weighted=TRUE, model=2, copula_rho=0.2,
 						default_config=list(u_lower=-2,u_upper=2,
 											vol_lower=1,vol_upper=10,
 											sigma_true=0.5)){
+	set.seed(1)
+	npools=10;
+	size=2;
+	weighted=TRUE;
+	model=2;
+	copula_rho=0.2;
+	default_config=list(u_lower=-2,u_upper=2,vol_lower=1,vol_upper=10,sigma_true=0.5)
+
 	cj 			<- rep(size,npools)    
 	N 			<- sum(cj)        		
 	vol_lower 	<- default_config$vol_lower
@@ -14,8 +22,8 @@ createData <- function(npools=1000, size=5, weighted=TRUE, model=2, copula_rho=0
 	copula_mat	<- matrix(copula_rho,nctn,nctn)-diag(copula_rho,nctn)+diag(1,nctn)
 	mvnorm_var 	<- rmvnorm(N,sigma=copula_mat)
 	X 			<- cbind(1,mvnorm_var[,2:nctn])
-	G 			<- cbind(1,rnorm(N),rbinom(N,1,0.4))
-	alpha_true 	<- c(-0.5,0.5,0.5)
+	G 			<- matrix(1,N,1)#cbind(1,rnorm(N),rbinom(N,1,0.4))
+	alpha_true 	<- c(0.5)#c(-0.5,0.5,0.5)
 	unif_var	<- pnorm(mvnorm_var[,1])
 	u 			<- unif_var*(u_upper-u_lower)+u_lower # age
 	X_homo 		<- X[order(u),]
@@ -94,18 +102,21 @@ createData <- function(npools=1000, size=5, weighted=TRUE, model=2, copula_rho=0
 	    return(beta)
 	  }
 	}
+	model_list				<-list()
+	model_list[['model1']] 	<- list(beta_0=f1, beta_1=f2)
+	model_list[['model2']] 	<- list(beta_0=f3, beta_1=f4)
 
 	if(model == 1){ # combine of function 1 and 2
 	  
-	  beta_list 	<- list(beta_0=f1, beta_1=f2)
+	  beta_list 	<- model_list$model1
 	  beta_true 	<- betaTrue(u=u,beta_list=beta_list,center_intc=TRUE)
 	  beta_homo_true<- beta_true[order(u),]
-	  Y_indv 		<- rlnorm(N,G%*%alpha_true+apply(X*beta_true,1,sum),sdlog=sigma_true)
+	  Y_indv 		<- rlnorm(N, G%*%alpha_true+apply(X*beta_true,1,sum), sdlog=sigma_true)
 	  Y_homo_indv 	<- Y_indv[order(u)]
 	  
 	}else if(model == 2){ # combine of function 1 and 2
 	  
-	  beta_list 	<- list(beta_0=f3, beta_1=f4)
+	  beta_list 	<- model_list$model2
 	  beta_true 	<- betaTrue(u=u,beta_list=beta_list,center_intc=TRUE)
 	  beta_homo_true<- beta_true[order(u),]
 	  Y_indv 		<- rlnorm(N,G%*%alpha_true+apply(X*beta_true,1,sum),sdlog=sigma_true)
@@ -114,25 +125,29 @@ createData <- function(npools=1000, size=5, weighted=TRUE, model=2, copula_rho=0
 	}
 
 	if(weighted){
+
 	  vol_split 	<- split(vol,rep(1:npools,cj))
 	  wgt_lst 		<- lapply(vol_split,function(vec) vec/sum(vec))
 	  wgt_vec 		<- unlist(wgt_lst)
-	  W_mat 		<- matrix(wgt_vec,nrow=npools,byrow=T)
+	  W_mat 		<- matrix(wgt_vec,nrow=npools,byrow=TRUE)
 	  
 	  vol_homo_split<- split(vol_homo,rep(1:npools,cj))
 	  wgt_homo_lst 	<- lapply(vol_homo_split,function(vec) vec/sum(vec))
 	  wgt_homo_vec 	<- unlist(wgt_homo_lst)
-	  W_homo_mat 	<- matrix(wgt_homo_vec,nrow=npools,byrow=T)
+	  W_homo_mat 	<- matrix(wgt_homo_vec,nrow=npools,byrow=TRUE)
+
 	}else{
+
 	  vol_split 	<- split(rep(1,N),rep(1:npools,cj))
 	  wgt_lst 		<- lapply(vol_split,function(vec) vec/sum(vec))
 	  wgt_vec 		<- unlist(wgt_lst)
-	  W_mat 		<- matrix(wgt_vec,nrow=npools,byrow=T)
+	  W_mat 		<- matrix(wgt_vec,nrow=npools,byrow=TRUE)
 	  
 	  vol_homo_split<- split(rep(1,N),rep(1:npools,cj))
 	  wgt_homo_lst 	<- lapply(vol_homo_split,function(vec) vec/sum(vec))
 	  wgt_homo_vec 	<- unlist(wgt_homo_lst)
-	  W_homo_mat 	<- matrix(wgt_homo_vec,nrow=npools,byrow=T)
+	  W_homo_mat 	<- matrix(wgt_homo_vec,nrow=npools,byrow=TRUE)
+
 	}
 
 	pool_id 		<- rep(1:npools, cj) # latent invidual-wise
@@ -152,10 +167,11 @@ createData <- function(npools=1000, size=5, weighted=TRUE, model=2, copula_rho=0
 		ind_1st 			<- ind_1st+cj[j]
 	}
 
-	output_lst <- list(Y_indv = Y_indv, Y_pool=Y_pool, I_mat=I_mat, Z_mat=Z_mat, beta_list=beta_list,
+	output_lst <- list(Y_indv = Y_indv, Y_pool=Y_pool, I_mat=I_mat, Z_mat=Z_mat, model_list=model_list,
 						W_mat=W_mat, X=X, u=u, G=G, alpha_true=alpha_true, beta_true=beta_true, sigma_true=sigma_true,
-						Y_homo_indv = Y_indv, Y_homo_pool=Y_homo_pool, I_homo_mat=I_mat, Z_homo_mat=Z_mat, 
-						W_homo_mat=W_mat, X_homo=X, u_homo=u_homo, G_homo=G_homo, beta_homo_true=beta_homo_true)
+						
+						Y_homo_indv = Y_homo_indv, Y_homo_pool=Y_homo_pool, I_homo_mat=I_homo_mat, Z_homo_mat=Z_homo_mat, 
+						W_homo_mat=W_homo_mat, X_homo=X_homo, u_homo=u_homo, G_homo=G_homo, beta_homo_true=beta_homo_true)
 
 	return(output_lst)
 }

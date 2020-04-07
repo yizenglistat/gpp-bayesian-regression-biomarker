@@ -19,8 +19,8 @@ if(!cluster){
 					'sizes=2',
 					'weighted=TRUE',
 					'copula_rho=0.2',
-					'models=2',
-					'homo=FALSE',
+					'models=1',
+					'homo=TRUE',
 					'plot=TRUE',
 					"name='biomaker'")
 }
@@ -39,7 +39,7 @@ if(identical(nkeep, NA)) nkeep <- 2000
 if(identical(nthin, NA)) nthin <- 10
 if(identical(nstep, NA)) nstep <- 20
 if(identical(npools, NA)) plot <- 500
-if(identical(sizes, NA)) sizes <- 4
+if(identical(sizes, NA)) sizes <- 2
 if(identical(weighted, NA)) weighted <- TRUE
 if(identical(copula_rho, NA)) copula_rho <- 0.2
 if(identical(models, NA)) models <- 1
@@ -84,7 +84,6 @@ for(model in models){
 			Y_homo_obs 	<- data_lst$Y_homo_pool
 			I_homo_mat 	<- data_lst$I_homo_mat
 			Z_homo_mat 	<- data_lst$Z_homo_mat
-			W_homo_mat 	<- data_lst$W_homo_mat
 
 			Y_indv 		<- data_lst$Y_indv
 			Y_homo_indv <- data_lst$Y_homo_indv
@@ -92,28 +91,33 @@ for(model in models){
 			beta_true 	<- data_lst$beta_true
 			beta_homo_true 	<- data_lst$beta_homo_true
 			sigma_true 	<- data_lst$sigma_true
-			beta_list 	<- data_lst$beta_list
+			model_list 	<- data_lst$model_list
 
 			true_params			<- list(Y_indv=Y_indv,sigma_true=sigma_true,beta_true=beta_true,alpha_true=alpha_true)
 			true_homo_params	<- list(Y_indv=Y_homo_indv,sigma_true=sigma_true,beta_true=beta_homo_true,alpha_true=alpha_true)
 			
 			# ========================================= Bayesian Gpp Fitting ========================================= # 
-			out_BM 				<- try(bayesGppBM(X=X, G=G, t=u, Y_pool=Y_obs, Z=Z_mat, I=I_mat, W=W_mat, size=size, 
+		
+			out_BM 				<- try(bayesGppBM(X=X, G=G, t=u, Y_pool=Y_obs, Z=Z_mat, I=I_mat, size=size, 
 									visual=plot, true_params=true_params, model=model,
 									hyper_params=list(phi_sd=0.1, kappa=2, nknots=50,sigma_init=1),
 									gibbs_config=list(nburn=nburn,nkeep=nkeep,nthin=nthin,nstep=nstep)),silent=TRUE)
 			
 			saveData(MC_list=out_BM, taskid=taskid, reps=reps, rep=rep, savepath=paste0('./output/model',model,'/size',size,'/'))
-
+		
 			if(homo){
-				
-				out_homo_BM 	<- try(bayesGppBM(X=X_homo, G=G_homo, t=u_homo, Y_pool=Y_homo_obs, Z=Z_homo_mat, I=I_homo_mat, W=W_homo_mat, size=size, 
+				if(size==1){
+					out_homo_BM <- out_BM
+				}else{
+					out_homo_BM 	<- try(bayesGppBM(X=X_homo, G=G_homo, t=u_homo, Y_pool=Y_homo_obs, Z=Z_homo_mat, I=I_homo_mat, size=size, 
 									visual=plot, true_params=true_homo_params, model=model,
 									hyper_params=list(phi_sd=0.1, kappa=2, nknots=50,sigma_init=1),
 									gibbs_config=list(nburn=nburn,nkeep=nkeep,nthin=nthin,nstep=nstep)),silent=TRUE)
-				
+				}
+
 				saveData(MC_list=out_homo_BM, taskid=taskid, reps=reps, rep=rep, savepath=paste0('./output/model',model,'/size',size,'/homo/'))
 			}
+
 			header <- paste0('\n','[Done!] The ',paste0(reps*(taskid-1)+rep,postfix)) %+% paste0(' simulation with model=',model)
 			cat(paste0(header,', size=',size),file=output_file,append=TRUE)
 		}
@@ -122,19 +126,7 @@ for(model in models){
 
 }
 
-
-
-
-
-bayesPlot(plot_figure=TRUE,which_beta=0,models=2,sizes=c(1,2,4,6,8))
-
-
-
-
-
-
-
-
+bayesPlot(plot_beta=FALSE,plot_sigma=TRUE,which_beta=0,model=1,sizes=c(1))
 
 
 

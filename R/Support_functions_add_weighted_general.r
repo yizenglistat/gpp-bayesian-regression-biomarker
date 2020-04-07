@@ -133,7 +133,7 @@ data_sim <- function(weight=TRUE,mod,beta,sig,esig,N,cj,J,lbd,rbd,L_1,L_2,copula
   #summary(lm(log(Y_ind)~Wmat[,-1]))
 
   # create true pooled biomarker level
-  Pool_id <- rep(1:J,cj)
+  	Pool_id <- rep(1:J,cj)
 	Imat    <- cbind(0,Pool_id,c(t(Omat)))
 	Imat_HG <- cbind(0,Pool_id,c(t(Omat_HG)))
 	
