@@ -1,6 +1,6 @@
 ## Overview
 
-Bayesian Varying Coefficient Models for Group Testing Data.
+Bayesian Varying Coefficient Models for Biomarker Data.
 
 ### Dependent Libraries
 A list of required packages are available.
