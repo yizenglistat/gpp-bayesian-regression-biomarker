@@ -67,8 +67,6 @@ for(model in models){
 			}else{
 				postfix <- 'th'
 			}
-			
-			header <- paste0('\n','[Done!] The ',paste0(reps*(taskid-1)+rep,postfix)) %+% paste0(' simulation with model=',model,' and size=',size)
 
 			data_lst 	<- createData(npools=npools, size=size, weighted=weighted, model=model, copula_rho=copula_rho)
 
@@ -115,7 +113,8 @@ for(model in models){
 				
 				saveData(MC_list=out_homo_BM, taskid=taskid, reps=reps, rep=rep, savepath=paste0('./output/model',model,'/size',size,'/homo/'))
 			}
-			
+			header <- paste0('\n','[Done!] The ',paste0(reps*(taskid-1)+rep,postfix)) %+% paste0(' simulation with model=',model)
+			cat(paste0(header,', size=',size),file=output_file,append=TRUE)
 		}
 
 	}
