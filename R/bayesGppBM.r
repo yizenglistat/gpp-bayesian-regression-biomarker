@@ -87,7 +87,7 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, W, size, visual=FALSE, model=1,
 
 	# ----------------------------------- configure shift alpha ------------------------------------- #
 	
-	alpha 			<- c(1,rep(0,nalpha-1))
+	alpha 			<- rep(0,nalpha)
 	Galpha 			<- G%*%alpha
 
 	# ----------------------------------- configure Latent Y ------------------------------------- #

@@ -15,6 +15,8 @@ suppressMessages(Rcpp::sourceCpp("./R/sampleLatentBM.cpp",verbose=FALSE))
 suppressMessages(Rcpp::sourceCpp("./R/createXbeta.cpp",verbose=FALSE))
 suppressMessages(source('./R/bayesGppBM.r'))
 suppressMessages(source('./R/bayesGppFun.r'))
+suppressMessages(source('./R/bayesPlot.r'))
 suppressMessages(source('./R/configGpp.r'))
 suppressMessages(source('./R/createData.r'))
 suppressMessages(source('./R/saveData.r'))
+

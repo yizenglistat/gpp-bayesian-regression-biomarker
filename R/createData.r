@@ -40,7 +40,7 @@ createData <- function(npools=1000, size=5, weighted=TRUE, model=2, copula_rho=0
 	  }
 	  
 	  f3<- function(u){
-	    0.2*(sin(pi*(u-0.5)/2.5)+2)*(exp(-(u+(u+0.5)^2*(u>0.5))/6))
+	    0.2*(sin(pi*(u-0.5)/2.5)+2)*(exp(-(u+(u+0.5)^2*(u> -0.5))/6))
 	  }
 	  
 	  f4 <- function(u,a=0,b=2,c=4){
@@ -152,7 +152,7 @@ createData <- function(npools=1000, size=5, weighted=TRUE, model=2, copula_rho=0
 		ind_1st 			<- ind_1st+cj[j]
 	}
 
-	output_lst <- list(Y_indv = Y_indv, Y_pool=Y_pool, I_mat=I_mat, Z_mat=Z_mat,
+	output_lst <- list(Y_indv = Y_indv, Y_pool=Y_pool, I_mat=I_mat, Z_mat=Z_mat, beta_list=beta_list,
 						W_mat=W_mat, X=X, u=u, G=G, alpha_true=alpha_true, beta_true=beta_true, sigma_true=sigma_true,
 						Y_homo_indv = Y_indv, Y_homo_pool=Y_homo_pool, I_homo_mat=I_mat, Z_homo_mat=Z_mat, 
 						W_homo_mat=W_mat, X_homo=X, u_homo=u_homo, G_homo=G_homo, beta_homo_true=beta_homo_true)
