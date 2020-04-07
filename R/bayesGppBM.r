@@ -1,4 +1,4 @@
-bayesGppBM <- function(X, G, t, Y_pool, Z, I, W, size, visual=FALSE,
+bayesGppBM <- function(X, G, t, Y_pool, Z, I, W, size, visual=FALSE, model=1,
 					true_params=list(Y_indv=Y_indv,sigma_true=sigma_true,beta_true=beta_true,alpha_true=alpha_true), # this is just for plotting
 					hyper_params=list(phi_sd=0.1, kappa=2,nknots=50,sigma_init=1),
 					gibbs_config=list(nburn=1000,nkeep=2000,nthin=5,nstep=50)){
@@ -177,7 +177,7 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, W, size, visual=FALSE,
 			Q_list[[d]] 			<- beta_d_output$Q_mat 									# update transform mat (d_th)
  		
  		}
-
+ 	
  		Xbeta 			<- rep(0,N)
 		Xbeta 			<- createXbeta(N,nbeta,Xbeta,X,beta)
 
@@ -185,7 +185,7 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, W, size, visual=FALSE,
 
  		Sigma_alpha 		<- solve(t(G)%*%G)
  		mu_alpha 			<- Sigma_alpha%*%colSums(G*(h-Xbeta))
- 		#alpha				<- as.vector(rmvnorm(1,mu_alpha,as.matrix(Sigma_alpha),method = "svd"))
+ 		#alpha				<- as.vector(rmvnorm(1,mu_alpha,as.matrix((sigma**2)*Sigma_alpha),method = "svd"))
  		alpha 				<- (t(chol(Sigma_alpha*(sigma**2))))%*%rnorm(nalpha) + mu_alpha
  		Galpha 				<- as.numeric(G%*%alpha)
 
@@ -264,11 +264,12 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, W, size, visual=FALSE,
 
 				MC_df <- data.frame(true=MC_true,values=MC_seq, median=MC_med, iters=rep(1:ikeep,4), label=MC_label)
 				
-				filename <- paste0('./output/',
+				figpath	 <- paste0('./output/model',model,'/size',size,'/')
+				figname <- paste0(figpath,
 									paste0(rep('0',nchar(nkeep/nstep)-nchar(ikeep/nstep)),collapse=''),
 									ikeep/nstep,'.png')
 				
-				trellis.device(png,width=540,height=527,file=filename)
+				trellis.device(png,width=540,height=527,file=figname)
 				
 				MC_figure <-xyplot(values+true+median~iters|label,
 								#main='Markov Chain Monte Carlo',
@@ -308,8 +309,8 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, W, size, visual=FALSE,
 	}
 
 	if(visual){	
-		system("convert -delay 50 -loop 0 ./output/*.png ./output/" %+% paste0(type,"mc.gif"))
-		system("rm -rf ./output/*.png")
+		system("convert -delay 50 -loop 0 " %+% figpath %+% "*.png " %+% figpath %+% paste0('m',model,'s',size,".gif"))
+		system("rm -rf " %+% figpath %+% "*.png")
 	}
 
 	#------------------------------------- End Gibbs sampling ------------------------------------#

@@ -9,13 +9,11 @@ bayesGppFun <- function(center=FALSE, Xd, omega=1, sigma=1, h, h_beta, E_mat, Q_
 	presicion_mat 	 <- forceSymmetric(crossprod(Q_mat, D_mat)%*%Q_mat + R_knots_inv_mat*tau*(sigma**2))
 	presicion_decomp <- chol(presicion_mat)													# chol decomposition to make inverse faster
 	Sigma_beta_d  	 <- chol2inv(presicion_decomp) 											# updated covariance matrix of GPP
-	Sigma_beta_d	 <- Sigma_beta_d*(sigma**2)
 	mu_beta_d  		 <- Sigma_beta_d %*% crossprod(Q_mat,EOmegah_beta)   					# updated mean of GPP
-	mu_beta_d 		 <- mu_beta_d/(sigma**2)
 
 	# use override old matrix to make name short, otherwise, updated_beta_d_knots, etc
 	nknots 		  	 <- nrow(R_knots_mat)													# number of knots
-	beta_d_knots  	 <- as.numeric(backsolve(presicion_decomp,rnorm(nknots))+mu_beta_d)		# sample from presicion matrix,solve upper triangle system
+	beta_d_knots  	 <- as.numeric(backsolve(presicion_decomp/sigma,rnorm(nknots))+mu_beta_d)		# sample from presicion matrix,solve upper triangle system
 	beta_d_unique 	 <- Q_mat%*%beta_d_knots 												# convert from knots to unique values in t
 	beta_d_knots  	 <- beta_d_knots  - mean(beta_d_unique)*center							# center beta_d(t_knots) or not 
 	beta_d_unique 	 <- beta_d_unique  - mean(beta_d_unique)*center							# center beta_d(t_unique) or not
@@ -54,11 +52,11 @@ bayesGppFun <- function(center=FALSE, Xd, omega=1, sigma=1, h, h_beta, E_mat, Q_
 
 	proposed_one 						<-  -determinant(proposed_R_knots_mat)$modulus/2
 		  									-updated_tau*crossprod(beta_d_knots, proposed_R_knots_inv_mat)%*%beta_d_knots/2
-		  									-crossprod(proposed_h_minus_eta*omega, proposed_h_minus_eta)/2
+		  									-crossprod(proposed_h_minus_eta*omega, proposed_h_minus_eta)/(2*sigma**2)
 	
 	current_one 						<-  -determinant(R_knots_mat)$modulus/2
 									  		-updated_tau*crossprod(beta_d_knots, R_knots_inv_mat)%*%beta_d_knots/2
-									  		-crossprod(h_minus_eta*omega, h_minus_eta)/2
+									  		-crossprod(h_minus_eta*omega, h_minus_eta)/(2*sigma**2)
 
 	rate 								<- (proposed_phi-phi_min)*(phi_max-proposed_phi)/((phi_max-phi)*(phi-phi_min))	# to control the accept probability								
 	accept_prob 						<- min(1, as.numeric(exp(proposed_one-current_one)*rate))						# accept probability to proposed one or reject
