@@ -1,7 +1,8 @@
 bayesPlot <- function(path='./output/', plot_beta=FALSE, plot_sigma=FALSE, which_beta=1, model=1, sizes=sizes,
 	true_params=list(sigma_true=sigma_true,alpha_true=alpha_true,model_list=model_list),
 	plot_config = list(line_col=c("#28B463",'#A93226'), band_col='gray', band_opacity=0.3)){
-	debug <- TRUE
+	
+	debug <- FALSE
 	if(debug){
 		path='./output/';
 		plot_beta=FALSE;

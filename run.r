@@ -10,18 +10,18 @@ input_args <- commandArgs(trailingOnly = TRUE)
 if(!cluster){
 	setwd("/Users/Zeng/Dropbox/research-at-sc/vcm/vcm-biomarker")
 	input_args <- c('taskid=1',
-					'reps=20',
-					'nburn=100',
-					'nkeep=500',
-					'nthin=10',
-					'nstep=50',
+					'reps=1',
+					'nburn=1',
+					'nkeep=5',
+					'nthin=2',
+					'nstep=2',
 					'npools=300',
-					'sizes=2',
+					'sizes=c(1,2,4,6,8)',
 					'weighted=TRUE',
 					'copula_rho=0.2',
-					'models=1',
+					'models=c(1,2)',
 					'homo=TRUE',
-					'plot=TRUE',
+					'plot=FALSE',
 					"name='biomaker'")
 }
 
@@ -126,7 +126,7 @@ for(model in models){
 
 }
 
-bayesPlot(plot_beta=FALSE,plot_sigma=TRUE,which_beta=0,model=1,sizes=c(1))
+#bayesPlot(plot_beta=FALSE,plot_sigma=TRUE,which_beta=0,model=1,sizes=c(1))
 
 
 

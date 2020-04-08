@@ -2,14 +2,6 @@ createData <- function(npools=300, size=2, weighted=TRUE, model=2, copula_rho=0.
 						default_config=list(u_lower=-2,u_upper=2,
 											vol_lower=1,vol_upper=10,
 											sigma_true=0.5)){
-	set.seed(1)
-	npools=10;
-	size=2;
-	weighted=TRUE;
-	model=2;
-	copula_rho=0.2;
-	default_config=list(u_lower=-2,u_upper=2,vol_lower=1,vol_upper=10,sigma_true=0.5)
-
 	cj 			<- rep(size,npools)    
 	N 			<- sum(cj)        		
 	vol_lower 	<- default_config$vol_lower
