@@ -1,12 +1,38 @@
-==============================Bayesian VCM with BM============================== 
-
-[Done!] The 1st simulation with model=1, size=1
-[Done!] The 1st simulation with model=1, size=2
-[Done!] The 1st simulation with model=1, size=4
-[Done!] The 1st simulation with model=1, size=6
-[Done!] The 1st simulation with model=1, size=8
-[Done!] The 1st simulation with model=2, size=1
-[Done!] The 1st simulation with model=2, size=2
-[Done!] The 1st simulation with model=2, size=4
-[Done!] The 1st simulation with model=2, size=6
-[Done!] The 1st simulation with model=2, size=8
+============Bayesian VCM with BM============ 
+model | size | type | # of theta | # of beta 
+   1      1      random      1           1 
+   1      1      homo        1           1 
+   1      1      nhomo       1           1 
+   1      2      random      1           1 
+   1      2      homo        1           1 
+   1      2      nhomo       1           1 
+   1      4      random      1           1 
+   1      4      homo        1           1 
+   1      4      nhomo       0           0 
+   1      6      random      0           0 
+   1      6      homo        0           0 
+   1      6      nhomo       0           0 
+   1      8      random      0           0 
+   1      8      homo        0           0 
+   1      8      nhomo       0           0 
+   1      10     random      0           0 
+   1      10     homo        0           0 
+   1      10     nhomo       0           0 
+   2      1      random      0           0 
+   2      1      homo        0           0 
+   2      1      nhomo       0           0 
+   2      2      random      0           0 
+   2      2      homo        0           0 
+   2      2      nhomo       0           0 
+   2      4      random      0           0 
+   2      4      homo        0           0 
+   2      4      nhomo       0           0 
+   2      6      random      0           0 
+   2      6      homo        0           0 
+   2      6      nhomo       0           0 
+   2      8      random      0           0 
+   2      8      homo        0           0 
+   2      8      nhomo       0           0 
+   2      10     random      0           0 
+   2      10     homo        0           0 
+   2      10     nhomo       0           0 

@@ -1,4 +1,4 @@
-gpp_config_fun<-function(t, nknots=100, nbeta, phi_sd, kappa=2, step=0.01){
+gpp_config_fun<-function(t, nknots=50, nbeta, phi_sd, kappa=2, step=0.01){
 	N 				<- length(t)						# number of individuals
 	eta_idx 		<- rep(NA, N)						# linear predictor eta initialized
 

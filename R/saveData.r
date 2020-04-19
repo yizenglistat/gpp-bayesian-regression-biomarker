@@ -7,7 +7,6 @@ saveData<-function(MC_list, taskid=character(0), reps=reps, rep=1, visual=FALSE,
 	beta_knots_MC 				<- MC_list$beta_knots 						# Monte Carlo samples, list with length nbeta and each element of list is nnew x nkeep matrix
 	tau_MC 						<- MC_list$tau 								# Monte Carlo samples, list with length nbeta and each element of list is 1 x nkeep matrix
 	phi_MC 						<- MC_list$phi 								# Monte Carlo samples, Monte Carlo samples, list with length nbeta and each element of list is 1 x nkeep matrix
-	alpha_MC 					<- MC_list$alpha
 	Y_MC						<- MC_list$Y
 	sigma_MC 					<- MC_list$sigma
 
@@ -15,10 +14,9 @@ saveData<-function(MC_list, taskid=character(0), reps=reps, rep=1, visual=FALSE,
 	nbeta 						<- length(beta_MC)							# number of beta functions
 	nnew 						<- length(MC_list$t_new)					# length of t_new
 	nknots 						<- nrow(MC_list$beta_knots[[1]])
-	nalpha 						<- nrow(alpha_MC)
 
 
-	theta 						<- rbind(sigma_MC,alpha_MC)
+	theta 						<- sigma_MC
 
 	
 	for(d in 1:nbeta){
@@ -82,10 +80,11 @@ saveData<-function(MC_list, taskid=character(0), reps=reps, rep=1, visual=FALSE,
 	colnames(beta_knots_summ)		<- c('t_knots',paste0('mean_beta',0:(nbeta-1)), paste0('med_beta',0:(nbeta-1)),
 									paste0('sd_beta',0:(nbeta-1)),paste0('lower_beta',0:(nbeta-1)),paste0('upper_beta',0:(nbeta-1)))
 
-	write.csv(theta_summ, file = paste0(savepath,'theta_summ',reps*(taskid-1)+rep,'.csv'), row.names=FALSE)
+	postfix <- reps*(taskid-1)+rep
+	fwrite(theta_summ, file = paste0(savepath,'theta_summ',paste0(rep('0',3-nchar(postfix)),collapse = ''),postfix,'.csv'), row.names=FALSE)
 	#write.csv(beta_summ, file = paste0(savepath,'beta_summ',reps*(taskid-1)+rep,'.csv'), row.names=FALSE)
 	#write.csv(beta_new_summ, file = paste0(savepath, 'beta_new_summ',reps*(taskid-1)+rep,'.csv'), row.names=FALSE)
-	write.csv(beta_knots_summ, file = paste0(savepath,'beta_knots_summ',reps*(taskid-1)+rep,'.csv'), row.names=FALSE)
+	fwrite(beta_knots_summ, file = paste0(savepath,'beta_knots_summ',paste0(rep('0',3-nchar(postfix)),collapse = ''),postfix,'.csv'), row.names=FALSE)
 
 }
 

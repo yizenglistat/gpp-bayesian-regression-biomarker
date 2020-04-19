@@ -1,5 +1,5 @@
 bayesGppBM <- function(X, G, t, Y_pool, Z, I, size, visual=FALSE, model=1,
-					true_params=list(Y_indv=Y_indv,sigma_true=sigma_true,beta_true=beta_true,alpha_true=alpha_true), # this is just for plotting
+					true_params=list(Y_indv=Y_indv,sigma_true=sigma_true,beta_true=beta_true), # this is just for plotting
 					hyper_params=list(phi_sd=0.1, kappa=2,nknots=50,sigma_init=1),
 					gibbs_config=list(nburn=1000,nkeep=2000,nthin=5,nstep=50)){
 
@@ -13,14 +13,14 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, size, visual=FALSE, model=1,
 	npools 	<- nrow(Z) 									# number of pools
 	cj 		<- rep(size,npools)
 	nbeta 	<- ncol(X)									# number of unknown beta fun including beta0
-	nalpha 	<- length(alpha_true) 						# number of linear effect coefficients
+	#nalpha 	<- length(alpha_true) 						# number of linear effect coefficients
 
 	# --------------------------------- configure true parameters -------------------------------- #
 
 	Y_indv 			<- true_params$Y_indv
 	sigma_true 		<- true_params$sigma_true
 	beta_true 		<- true_params$beta_true
-	alpha_true 		<- true_params$alpha_true
+	#alpha_true 		<- true_params$alpha_true
 
 	# --------------------------------- configure Gibbs sampler --------------------------------- #
 
@@ -87,8 +87,8 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, size, visual=FALSE, model=1,
 
 	# ----------------------------------- configure shift alpha ------------------------------------- #
 	
-	alpha 			<- matrix(0,1,1)
-	Galpha 			<- G%*%alpha
+	#alpha 			<- matrix(0,1,1)
+	#Galpha 			<- G%*%alpha
 
 	# ----------------------------------- configure Latent Y ------------------------------------- #
 	  
@@ -107,7 +107,7 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, size, visual=FALSE, model=1,
 	kept_beta_new		<- lapply(1:nbeta, matrix, data = NA, nrow=nnew, ncol=nkeep)		# to store posterior beta(t_new)
 	kept_tau 			<- lapply(1:nbeta, matrix, data = NA, nrow=1, ncol=nkeep)			# to store posterior tau
 	kept_phi			<- lapply(1:nbeta, matrix, data = NA, nrow=1, ncol=nkeep)			# to store posterior phi
-	kept_alpha 			<- matrix(NA,nalpha,nkeep)
+	#kept_alpha 			<- matrix(NA,nalpha,nkeep)
 	kept_Y 				<- matrix(NA, N, nkeep)
 	kept_sigma			<- matrix(NA, 1, nkeep)
 
@@ -137,7 +137,7 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, size, visual=FALSE, model=1,
 		if(max(cj)==1){
 			h 				<- log(Y_pool)
 		}else{
-			Y 				<- sampleLatentBM(Y, Y_pool, Xbeta + Galpha, I, Z, sigma, npools, N)
+			Y 				<- sampleLatentBM(Y, Y_pool, Xbeta, I, Z, sigma, npools, N)
 			h 				<- log(Y)
 		}
 		# -$-$-$-$-$-$-$-$- update beta -$-$-$-$-$-$-$-$-
@@ -147,7 +147,7 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, size, visual=FALSE, model=1,
 			Xbeta_minus_d	<- createXbeta(N,nbeta-1,Xbeta_minus_d,
 												matrix(X[,-d],N,nbeta-1),
 												matrix(beta[,-d],N,nbeta-1)) 				# Xbeta without dth covariate and dth beta
-			h_beta			<- h - Xbeta_minus_d - Galpha									# construct h_beta = h - h without beta_d
+			h_beta			<- h - Xbeta_minus_d											# construct h_beta = h - h without beta_d
 			E_mat 			<- gpp_config$E_mat 											# beta_d indicator mat, from t_unique to t seq
 			Q_mat 			<- Q_list[[d]] 													# beta_d transform mat, from t_knots to t_unique
 			R_knots_mat 	<- R_knots_list[[d]] 											# beta_d knots correlation matrix 
@@ -156,7 +156,7 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, size, visual=FALSE, model=1,
 			beta_d_config   <- beta_config[,d]												# beta_d config matrix
 			
 			# update beta_d fun and pour ouput into a list
-			beta_d_output 	<- bayesGppFun(center=(d==1), 
+			beta_d_output 	<- bayesGppFun(center=FALSE, 
 											Xd=Xd, sigma=sigma, h=h, h_beta=h_beta, 
 											E_mat=E_mat, Q_mat=Q_mat, 
 											knots_dist=knots_dist, cross_dist=cross_dist, 
@@ -183,15 +183,15 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, size, visual=FALSE, model=1,
 
 	    # -$-$-$-$-$-$-$-$- update linear effect alpha -$-$-$-$-$-$-$-$-
 
- 		Sigma_alpha 		<- solve(t(G)%*%G)
- 		mu_alpha 			<- Sigma_alpha%*%t(G)%*%(h-Xbeta)
+ 		#Sigma_alpha 		<- solve(t(G)%*%G)
+ 		#mu_alpha 			<- Sigma_alpha%*%t(G)%*%(h-Xbeta)
  		#alpha				<- as.vector(rmvnorm(1,mu_alpha,as.matrix((sigma**2)*Sigma_alpha),method = "svd"))
- 		alpha 				<- (t(chol(Sigma_alpha*(sigma**2))))%*%rnorm(nalpha) + mu_alpha
- 		Galpha 				<- as.numeric(G%*%alpha)
+ 		#alpha 				<- (t(chol(Sigma_alpha*(sigma**2))))%*%rnorm(nalpha) + mu_alpha
+ 		#Galpha 				<- as.numeric(G%*%alpha)
 
  		# -$-$-$-$-$-$-$-$- update variance sigma -$-$-$-$-$-$-$-$-
 
- 		sigma 				<- sqrt(1/rgamma(1,N/2+0.5,sum((h-Xbeta-Galpha)^2)/2+0.5))
+ 		sigma 				<- sqrt(1/rgamma(1,N/2+0.5,sum((h-Xbeta)^2)/2+0.5))
 
 	    #---------------------------- Save Loop ----------------------------#
 
@@ -216,7 +216,7 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, size, visual=FALSE, model=1,
 			}
 
 																		# save alpha
-			kept_alpha[,ikeep]					<- alpha
+			#kept_alpha[,ikeep]					<- alpha
 																		# save latent Y
 			kept_Y[,ikeep]						<- Y
 
@@ -229,14 +229,16 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, size, visual=FALSE, model=1,
 	    	if(ikeep==1){
 					Y11_med 				<- c()
 					beta81_med				<- c()
-					alpha1_med 				<- c()
+					beta80_med				<- c()
+					#alpha1_med 				<- c()
 					sigma_med 				<- c()
 			}
 			
 			if(visual){
 				Y11_med 	<- c(Y11_med,median(kept_Y[1,1:ikeep]))
 				beta81_med 	<- c(beta81_med,median(kept_beta[[2]][8,1:ikeep]))
-		    	alpha1_med 	<- c(alpha1_med,median(kept_alpha[1,1:ikeep]))
+				beta80_med 	<- c(beta80_med,median(kept_beta[[1]][8,1:ikeep]))
+		    	#alpha1_med 	<- c(alpha1_med,median(kept_alpha[1,1:ikeep]))
 		    	sigma_med 	<- c(sigma_med,median(kept_sigma[1,1:ikeep]))
 			}
 
@@ -244,22 +246,25 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, size, visual=FALSE, model=1,
 		    	
 				MC_seq 	<- c(kept_Y[1,1:ikeep],
 							kept_beta[[2]][8,1:ikeep],
-							kept_alpha[1,1:ikeep],
+							kept_beta[[1]][8,1:ikeep],
+							#kept_alpha[1,1:ikeep],
 							kept_sigma[1,1:ikeep])
 				
 				MC_med <- c(Y11_med, 
 							beta81_med,
-							alpha1_med, 
+							beta80_med,
+							#alpha1_med, 
 							sigma_med)
 
 				MC_true <- c(rep(Y_indv[1],ikeep),
 							rep(beta_true[8,2],ikeep),
-							rep(alpha_true[1],ikeep),
+							rep(beta_true[8,1],ikeep),
+							#rep(alpha_true[1],ikeep),
 							rep(sigma_true,ikeep))
-
 				MC_label <- factor(rep(c('Y11',
 										'beta81',
-										'alpha1',
+										'beta80',
+										#'alpha1',
 										'sigma'),each=ikeep))
 
 				MC_df <- data.frame(true=MC_true,values=MC_seq, median=MC_med, iters=rep(1:ikeep,4), label=MC_label)
@@ -285,7 +290,8 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, size, visual=FALSE, model=1,
 			    				data=MC_df,type="l",
 			    				par.settings =list(superpose.line=list(col=c("gray","#28B463",'#A93226'), lwd = c(1.2,3,3), lty=c(1,4,2))),
 			    				scales=list(y=list(relation="free")),
-			    				strip=strip.custom(factor.levels=expression(alpha[1],
+			    				strip=strip.custom(factor.levels=expression(#alpha[1],
+			    															beta[80],
 			    															beta[81],
 			    															sigma,
 			    															Y[11])),
@@ -316,7 +322,8 @@ bayesGppBM <- function(X, G, t, Y_pool, Z, I, size, visual=FALSE, model=1,
 	#------------------------------------- End Gibbs sampling ------------------------------------#
 
 	output_list					<- list(t_knots=t_knots, t_new=t_new, beta_new=kept_beta_new, 
-										alpha=kept_alpha, Y=kept_Y, sigma=kept_sigma,
+										#alpha=kept_alpha, 
+										Y=kept_Y, sigma=kept_sigma,
 									  	beta_knots=kept_beta_knots, beta_unique=kept_beta_unique, beta=kept_beta,
 									  	tau=kept_tau, phi=kept_phi)
 		
